@@ -5,8 +5,6 @@ from config import config_options
 from flask_login import LoginManager
 from flask_mail import Mail
 
-
-
 #instantiating extentions
 bootstrap=Bootstrap()
 db=SQLAlchemy()
@@ -31,4 +29,7 @@ def create_app(config_name):
     from .main import main as main_blueprint
     app.register_blueprint(main_blueprint)
 
+    from .auth import auth as auth_blueprint
+    app.register_blueprint(auth_blueprint, url_prefix='/authenticate')
+    
     return app
