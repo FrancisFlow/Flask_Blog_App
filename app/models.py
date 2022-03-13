@@ -1,0 +1,64 @@
+from . import db
+from flask_login import UserMixin, current_user
+from werkzeug.security import generate_password_hash, check_password_hash
+from datetime import datetime
+from . import login_manager
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
+class User(UserMixin, db.Model):
+    __tablename__='users'
+
+    id=db.Column(db.Integer, primary_key=True)
+    username=db.Column(db.String(255))
+    email=db.Column(db.String(255), unique=True, index=True)
+    bio=db.Column(db.String(255))
+    profile_pic_path=db.Colun(db.String())
+    blog=db.relationship('Blog', backref='user', lazy='dynamic')
+    pass_secure=db.Column(db.String(255))
+    comment=db.relationship('Comment', backref='user', lazy='dynamic')
+
+    @property
+    def password(self):
+        raise AttributeError('You cannot read the password attribute')
+
+    
+    @password.setter
+    def password(self, password):
+        self.pass_secure=generate_password_hash(password)
+    
+    def verify_password(self, password):
+        return check_password_hash(self.pass_secure, password)
+
+
+class Blog(db.Model):
+    __tablename__='blogs'
+    id=db.Column(db.Integer, primary_key=True)
+    title=db.Column(db.String(255), nullable=False)
+    content=db.Column(db.String())
+    posted_on = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    user_id=db.Column(db.Integer, db.ForeignKey('users.id'))
+    comment=db.relationship('Comment', backref='blog', lazy='dynamic')
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+    
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+    @classmethod
+    def get_blog(id):
+        blog=Blog.query.filter_by(id=id).first()
+        return blog 
+    def __repr__(self):
+        return f'Blog {self.title}, {self.posted_on}'
+class Comment(db.Model):
+
+    pass  
+
+
+
+
