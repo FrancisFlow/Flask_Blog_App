@@ -1,9 +1,10 @@
 import os
 
 class Config:
+    UPLOADED_PHOTOS_DEST ='app/static/photos' 
     SQL_TRACK_MODIFICATIONS=False
     SQLALCHEMY_DATABASE_URI='postgresql+psycopg2://francis:Master@localhost/blog'
-
+    SECRET_KEY='FORTHELOVEofMoney'
 class DevConfig(Config):
     DEBUG=True
     SQLALCHEMY_DATABASE_URI='postgresql+psycopg2://francis:Master@localhost/blog'

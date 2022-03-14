@@ -4,12 +4,14 @@ from flask_login import login_required,current_user
 from ..models import User, Blog, Comment
 from .forms import AddBlog, UpdateProfile
 from .. import db, photos
+from ..requests import get_quote
 
 
 @main.route('/')
 def index():
     title='The Blog'
-    return render_template('index.html', title=title)
+    quotes=get_quote()
+    return render_template('index.html', title=title, quotes=quotes)
 
 
 
@@ -68,3 +70,4 @@ def new_blog():
         return redirect(url_for(main.blogs))
 
     return render_template('add_blog.html', form=form, title=title)
+
