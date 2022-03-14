@@ -1,4 +1,6 @@
 from flask import render_template,request,redirect,url_for,abort,flash,session
+
+from app.auth.views import login
 from . import main
 from flask_login import login_required,current_user
 from ..models import User, Blog, Comment
@@ -66,13 +68,41 @@ def new_blog():
     title='New | Blog'
     form=AddBlog()
     if form.validate_on_submit():
-        blog=Blog(title=form.title.data, content=form.content.data)
+        blog=Blog(title=form.title.data, content=form.content.data, user=current_user)
         db.session.add(blog)
         db.session.commit()
         return redirect(url_for('main.blogs'))
 
     return render_template('add_blogs.html', form=form, title=title)
-@main.route('/view_comments/<id>')
+
+@main.route('/delete_blog/<int:id>')
+@login_required
+def delete_blog(id):
+    blog=Blog.query.filter_by(id=id)
+    blog.delete()
+    db.session.commit()
+    return redirect(url_for('main.blogs'))
+
+
+@main.route('/blog/<blog_id>/update', methods=['GET', 'POST'])
+@login_required
+def updateblog(blog_id):
+    blog=Blog.query.get(blog_id)
+    if blog.user !=current_user:
+        abort(403)
+    form=AddBlog()
+    if form.validate_on_submit():
+        blog.title=form.title.data
+        blog.content=form.content.data
+        db.session.commit()
+
+        return redirect(url_for('main.blogs', id=blog.id))
+    if request.method=='GET':   
+        form.title.data=blog.title
+        form.content.data=blog.content
+    return render_template('add_blogs.html', form=form)
+
+@main.route('/view_comments/<id>', methods=['GET', 'POST'])
 @login_required
 def view_comments(id):
     comment = Comment.get_comments(id)
