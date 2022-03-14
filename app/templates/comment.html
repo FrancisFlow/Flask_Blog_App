@@ -15,6 +15,12 @@
             {% for comment in comment %}
             <h3>{{comment.comment}}</h3>
             <h5>>By: {{comment.user.username}}</h5>
+        
+            <div class = "col-md-12">
+                <p>{{ comment.comment}}</p>
+                <a class ="btn btn-danger" href="{{url_for('main.delete_comment',id = comment.id)}}">Delete</a>
+            </div>
+            {%endfor%}
         </div>
         <div class="col-md-2"></div>
     </div>

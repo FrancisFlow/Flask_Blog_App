@@ -53,24 +53,25 @@ def update_pic(uname):
         user.profile_pic_path= path
         db.session.commit()
     return redirect(url_for('main.profile', uname=uname))
+
 @main.route('/blogs')
 def blogs():
     title='Blogs'
     blogs=Blog.query.order_by(Blog.posted_on.desc())
     return render_template('blogs.html', blogs=blogs, title=title)
 
-@main.route('/blogs/new')
+@main.route('/blogs/new', methods=['GET', 'POST'])
 @login_required
 def new_blog():
     title='New | Blog'
-    form=AddBlog
+    form=AddBlog()
     if form.validate_on_submit():
         blog=Blog(title=form.title.data, content=form.content.data)
         db.session.add(blog)
         db.session.commit()
-        return redirect(url_for(main.blogs))
+        return redirect(url_for('main.blogs'))
 
-    return render_template('add_blog.html', form=form, title=title)
+    return render_template('add_blogs.html', form=form, title=title)
 @main.route('/view_comments/<id>')
 @login_required
 def view_comments(id):
@@ -97,4 +98,10 @@ def new_comment(blog_id):
     
     return render_template('add_comment.html', form = form,blog = blog,title=title)
 
-
+@main.route('/delete_comment/<int:id>')
+@login_required
+def delete_comment(id):
+    comment=Comment.query.filter_by(id=id)
+    comment.delete()
+    db.session.commit()
+    return redirect(url_for('main.view_comments', id=id))
