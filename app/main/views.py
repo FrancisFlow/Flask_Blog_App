@@ -2,7 +2,7 @@ from flask import render_template,request,redirect,url_for,abort,flash,session
 from . import main
 from flask_login import login_required,current_user
 from ..models import User, Blog, Comment
-from .forms import AddBlog, UpdateProfile
+from .forms import CommentForm, AddBlog, UpdateProfile
 from .. import db, photos
 from ..requests import get_quote
 
@@ -60,6 +60,7 @@ def blogs():
     return render_template('blogs.html', blogs=blogs, title=title)
 
 @main.route('/blogs/new')
+@login_required
 def new_blog():
     title='New | Blog'
     form=AddBlog
@@ -70,4 +71,30 @@ def new_blog():
         return redirect(url_for(main.blogs))
 
     return render_template('add_blog.html', form=form, title=title)
+@main.route('/view_comments/<id>')
+@login_required
+def view_comments(id):
+    comment = Comment.get_comments(id)
+    title = 'View Comments'
+    return render_template('comment.html', comment=comment, title=title)
+
+@main.route('/comment/new/<int:blog_id>', methods = ['GET','POST'])
+@login_required
+def new_comment(blog_id):
+    form = CommentForm()
+    title = 'Add a comment'
+    blog = Blog.query.filter_by(id=blog_id).first()
+    if form.validate_on_submit():
+        comment = form.comment.data
+
+        new_comment = Comment(comment = comment,blog_id = blog_id, user_id=current_user.id)
+        db.session.add(new_comment)
+        db.session.commit()
+        
+
+        return redirect(url_for('.view_comments', id= blog.id))
+
+    
+    return render_template('add_comment.html', form = form,blog = blog,title=title)
+
 
