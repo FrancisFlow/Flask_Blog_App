@@ -87,3 +87,11 @@ class Comment(db.Model):
 
 
 
+class Quote:
+    """
+    Consuming quote api
+    """
+    def __init__(self, author, quote):
+        self.author=author
+        self.quote=quote
+
