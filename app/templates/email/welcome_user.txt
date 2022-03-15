@@ -1,0 +1,8 @@
+Hello {{user.username}}
+
+Welcome to The Blog, home to all your writings
+We congratulate you on you writing journey. You can create your own blogs or just read through other blogs posted by other writers.
+
+Enjoy your stay, and stay creative.
+
+__The Blog Team__
